@@ -7,6 +7,7 @@ public:
     ~SerialPort();
     bool connect();
     void disconnect();
+    int send(const std::string& data);
 private:
     std::string portName;
     int fileDescriptor; // The OS "ID card" for the open file

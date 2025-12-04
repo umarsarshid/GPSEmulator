@@ -1,3 +1,0 @@
-/Users/umararshid/Programming/2025/MockEmulator/build/CMakeFiles/emulator.dir
-/Users/umararshid/Programming/2025/MockEmulator/build/CMakeFiles/edit_cache.dir
-/Users/umararshid/Programming/2025/MockEmulator/build/CMakeFiles/rebuild_cache.dir
