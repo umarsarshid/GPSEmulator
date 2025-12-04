@@ -1,5 +1,5 @@
-#include "SerialPort.cpp"
-#include "GPSDevice.cpp"
+#include "SerialPort.hpp"
+#include "GPSDevice.hpp"
 #include <iostream>
 #include <thread> // For sleep
 #include <chrono> // For seconds
@@ -23,16 +23,20 @@ int main(int argc, char* argv[]) {
 
     // The Real Loop
     while (true) {
-        std::string msg = "ping\n";
-        hw.send(msg);
-        std::cout << "TX: " << msg;
+        // std::string msg = "ping\n";
+        // hw.send(msg);
+        // std::cout << "TX: " << msg;
         gps.updateState();
         std::string nmea = gps.getNMEASentence() + "\n";
-        std::cout << "NMEA: " << nmea;
-        // Sleep for 1 second to simulate 1Hz hardware
+        // 3. Send to wire
+        hw.send(nmea);
+        
+        // Log to console so I can see it
+        std::cout << "TX: " << nmea; // nmea already has \r\n
+
+        // 1Hz Update Rate
         std::this_thread::sleep_for(std::chrono::seconds(1));
-
+    
     }
-
     return 0;
 }
