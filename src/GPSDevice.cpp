@@ -21,6 +21,7 @@ std::string GPSDevice::getNMEASentence() {
     // 1. Construct the payload WITHOUT '$' or '*'
     // Real NMEA uses a weird format (Degrees + Minutes), but let's stick to basics first.
     // I need to make sure I use positive numbers for the string format (hence -longitude)
+    //calculate the length of the formatted string
     int len = snprintf(buffer, sizeof(buffer), 
         "GPGGA,123519,%0.4f,N,%0.4f,W,1,08,0.9,%.1f,M,5.0,M,,", 
         latitude, -longitude, altitude);
@@ -28,6 +29,7 @@ std::string GPSDevice::getNMEASentence() {
     std::string payload(buffer, len);
 
     // 2. Calculate Checksum (The "Secret Sauce")
+    //NMEA checksum is XOR of all characters between $ and *
     unsigned char checksum = 0;
     for (char c : payload) {
         checksum ^= c; // XOR every character
