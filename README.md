@@ -30,36 +30,42 @@ sudo apt-get install socat cmake build-essential
 
 ## **Build Instructions**
 
-1. **Clone the repository:**  
-   git clone [\<your-repo-url\>](https://github.com/umarsarshid/GPSEmulator.git)
+1. **Clone the repository:** 
+```bash 
+   git clone [https://github.com/umarsarshid/GPSEmulator.git)](https://github.com/umarsarshid/GPSEmulator.git)
    cd MockHardwareEmulator
-
+```
 2. **Create build directory and compile:**  
+ ```bash  
    mkdir build  
    cd build  
    cmake ..  
    make
-
+```
 ## **⚡ Quick Start**
 
 ### **1\. Create the Virtual "Cable"**
 
 Before running the emulator, you need to establish the virtual connection. We use socat to create two linked ports: /tmp/ttyMock (Server) and /tmp/ttyClient (Client).  
 Run this in a separate terminal window and keep it open:  
-socat \-d \-d pty,raw,echo=0,link=/tmp/ttyMock pty,raw,echo=0,link=/tmp/ttyClient
 
+```bash
+socat \-d \-d pty,raw,echo=0,link=/tmp/ttyMock pty,raw,echo=0,link=/tmp/ttyClient
+```
 ### **2\. Run the Emulator**
 
 In your build directory:  
+```bash
 ./emulator
-
+```
 *You should see logs indicating the service has started.*
 
 ### **3\. Connect a Client**
 
 Open a third terminal to act as your "Dashboard App" or "Map Software":  
+```bash
 cat /tmp/ttyClient
-
+```
 *You should see a stream of $GPGGA data appearing 10 times a second.*
 
 ## **⚙️ Configuration**
