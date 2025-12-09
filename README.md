@@ -42,7 +42,7 @@ sudo apt-get install socat cmake build-essential
    cmake ..  
    make
 ```
-## **⚡ Quick Start**
+## **Quick Start**
 
 ### **1\. Create the Virtual "Cable"**
 
@@ -68,7 +68,7 @@ cat /tmp/ttyClient
 ```
 *You should see a stream of $GPGGA data appearing 10 times a second.*
 
-## **⚙️ Configuration**
+## **Configuration**
 
 The application reads from emulator.conf in the execution directory. If the file is missing, it defaults to internal values.  
 **Example emulator.conf:**  
