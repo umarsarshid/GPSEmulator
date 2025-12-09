@@ -1,48 +1,58 @@
 #include "SerialPort.hpp"
 #include "GPSDevice.hpp"
+#include "ConfigLoader.hpp" // <--- NEW
 #include <iostream>
-#include <thread> // For sleep
-#include <chrono> // For seconds
+#include <thread>
+#include <chrono>
+#include <iomanip> // For time formatting
 
-int main(int argc, char* argv[]) {
-    // Allow user to pass port name.
-    // Default to a common Mac socat port if none provided.
-    std::string portName = (argc > 1) ? argv[1] : "/dev/ttys023";
+// Helper for logging
+void log(const std::string& msg) {
+    auto now = std::time(nullptr);
+    std::cout << "[" << std::put_time(std::localtime(&now), "%H:%M:%S") << "] " << msg << std::endl;
+}
+
+int main() {
+    // 1. Load Configuration
+    ConfigLoader config;
+    if (!config.load("emulator.conf")) {
+        std::cerr << "Warning: emulator.conf not found, using defaults." << std::endl;
+    }
+
+    std::string portName = config.getString("PORT", "/dev/ttys003");
+    int tickRate = config.getInt("TICK_RATE_MS", 100);
+
+    // 2. Initialize Hardware with Config
+    // (Note: I would need to update GPSDevice constructor to accept Lat/Lon, skipping for brevity)
     SerialPort hw(portName);
-    GPSDevice gps;
+    GPSDevice gps; 
 
     if (!hw.connect()) {
-        std::cerr << "Failed to connect to " << portName << std::endl;
+        log("FATAL: Failed to open serial port " + portName);
         return 1;
     }
 
-    std::cout << "Connected to " << portName << ". Streaming data..." << std::endl;
+    log("Service started on " + portName + " at " + std::to_string(tickRate) + "ms tick.");
 
-     // --- TIMING VARIABLES ---
+    // 3. The Loop
     auto lastTick = std::chrono::steady_clock::now();
-    // 10Hz = 100 milliseconds per tick
-    const auto TICK_RATE = std::chrono::milliseconds(100); 
-    std::cout << "Daemon started at 10Hz..." << std::endl;
+    auto tickDuration = std::chrono::milliseconds(tickRate);
 
-
-    // The Real Loop
     while (true) {
         auto now = std::chrono::steady_clock::now();
-        
-        // If 100ms has passed since the last tick...
-        if (now - lastTick >= TICK_RATE) {
-            // 1. UPDATE STATE
+        if (now - lastTick >= tickDuration) {
             gps.updateState();
-            
-            // 2. SEND DATA
             std::string nmea = gps.getNMEASentence();
-            hw.send(nmea);
             
-            // 3. RESET CLOCK
+            // Only log every 10th packet to avoid spamming the console at 10Hz
+            static int logCounter = 0;
+            if (++logCounter % 10 == 0) {
+                 log("TX: " + nmea.substr(0, nmea.length()-2)); // Trim \r\n for log
+            }
+            
+            hw.send(nmea);
             lastTick = now;
         }
-
-        // Small sleep to prevent 100% CPU usage, but small enough to remain responsive
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     return 0;
