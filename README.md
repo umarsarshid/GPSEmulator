@@ -32,7 +32,7 @@ sudo apt-get install socat cmake build-essential
 
 1. **Clone the repository:** 
 ```bash 
-   git clone [https://github.com/umarsarshid/GPSEmulator.git)](https://github.com/umarsarshid/GPSEmulator.git)
+   git clone https://github.com/umarsarshid/GPSEmulator.git
    cd MockHardwareEmulator
 ```
 2. **Create build directory and compile:**  
