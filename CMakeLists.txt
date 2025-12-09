@@ -12,6 +12,7 @@ add_executable(emulator
     src/SerialPort.cpp 
     src/GPSDevice.cpp 
     src/ConfigLoader.cpp
+    src/FaultInjector.cpp
 )
 
 # AUTOMATICALLY COPY CONFIG:

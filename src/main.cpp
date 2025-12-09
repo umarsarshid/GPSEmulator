@@ -1,6 +1,7 @@
 #include "SerialPort.hpp"
 #include "GPSDevice.hpp"
 #include "ConfigLoader.hpp"
+#include "FaultInjector.hpp"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -28,12 +29,21 @@ int main() {
         std::cerr << "Warning: emulator.conf not found, using defaults." << std::endl;
     }
 
+    // Load Chaos Settings
+    double chaosProb = config.getDouble("CHAOS_PROBABILITY", 0.0);
+    int jitterMax = config.getInt("JITTER_MAX_MS", 0);
+
     // Use the symlink path by default now
     std::string portName = config.getString("PORT", "/tmp/ttyMock");
     int tickRate = config.getInt("TICK_RATE_MS", 100);
 
     SerialPort hw(portName);
     GPSDevice gps; 
+
+        // Initialize Injector
+    FaultInjector injector;
+    injector.setProbability(chaosProb);
+    injector.setMaxJitter(jitterMax);
 
     if (!hw.connect()) {
         log("FATAL: Failed to open serial port " + portName);
@@ -51,12 +61,20 @@ int main() {
         if (now - lastTick >= tickDuration) {
             gps.updateState();
             std::string nmea = gps.getNMEASentence();
-            
-            static int logCounter = 0;
-            if (++logCounter % 10 == 0) {
-                 log("TX: " + nmea.substr(0, nmea.length()-2));
+
+            // Apply faults
+            bool dropped = injector.applyFaults(nmea);
+              if (!dropped) {
+                hw.send(nmea);
+                
+                // Logging logic (updated to show corruption)
+                static int logCounter = 0;
+                if (++logCounter % 10 == 0) {
+                     log("TX: " + nmea.substr(0, nmea.length()-2));
+                }
+            } else {
+                log("FAULT: Packet Dropped");
             }
-            
             hw.send(nmea);
             lastTick = now;
         }
