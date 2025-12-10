@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(emulator 
     src/main.cpp 
     src/SerialPort.cpp 
+    src/UDPTransport.cpp
     src/GPSDevice.cpp 
     src/ConfigLoader.cpp
     src/FaultInjector.cpp
