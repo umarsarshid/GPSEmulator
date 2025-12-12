@@ -17,7 +17,6 @@ volatile std::sig_atomic_t keepRunning = 1;
 void signalHandler(int signum) {
     keepRunning = 0;
 }
-
 void log(const std::string& msg) {
     auto now = std::time(nullptr);
     std::cout << "[" << std::put_time(std::localtime(&now), "%H:%M:%S") << "] " << msg << std::endl;
